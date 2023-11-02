@@ -65,6 +65,7 @@
   height: auto;
   border: 1px solid gray;
   margin: 20px;
+  overflow: auto;
 }
 
 .card-holder img {
@@ -74,11 +75,9 @@
 
 .card-holder > .card-body {
   height: 100%;
-  overflow: auto;
 }
 
 .card-holder > .card-label {
   height: 120%;
-  overflow: auto;
   padding: 10 10 10 10;
 }

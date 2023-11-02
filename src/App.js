@@ -12,7 +12,7 @@ import Search from './components/Search';
 // - Show a loading indication to inform users when the website is waiting for a response from the photo search API. (3 points)
 // - Deploy the website to a public host for accessibility to a broader audience. (1 point)
 
-// NOTE: rmb to hide access key before hosting
+// Hidden access key before hosting
 const MY_ACCESS_KEY = process.env.REACT_APP_UNSPLASH_MY_ACCESS_KEY;
 const UNSPLASH_URL = 'https://api.unsplash.com/search/photos?';
 
@@ -84,7 +84,7 @@ function App() {
 
   useEffect(() => {
     imageDispatch({ type: 'CLEAR_IMAGES' })
-  }, [searchText]);
+  }, [searchText, searchTrigger]);
 
   useEffect(() => {
     async function loadImage() {
@@ -102,18 +102,18 @@ function App() {
           return results;
         })
         .then(async images => {
-          console.log(images, "IMAGEURLS");
+          // console.log(images, "IMAGEURLS");
 
           imageDispatch({ type: 'CONCAT_IMAGES', images })
-          imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
 
-          console.log(imageData.images, "IMAGEURLS_after");
+          // console.log(imageData.images, "IMAGEURLS_after");
         })
         .catch(e => {
           // handle error
           imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
           return e
         })
+        imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
 
     }
     loadImage();
@@ -176,25 +176,7 @@ function App() {
         {imageUrls.map((image, index) => <img key={index} src={image.url} />)}
       </div> */}
 
-      {/* <ItemList images={imageUrls} /> */}
-
-      <div id='images' className="container">
-        <div>
-          {imageData.images.map((url, index) => {
-            return (
-              <div key={index} className="card-holder">
-                <div className="card-body">
-                  <img
-                    src={url.urls.small}
-                    alt={url.alt_description}
-                    className="card-img-top" />
-                </div>
-                <label className="card-label" for={index}>{url.alt_description}</label>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      <ItemList imageData={imageData} />
 
       {imageData.fetching && (
         <div className="text-center bg-secondary m-auto p-3">
