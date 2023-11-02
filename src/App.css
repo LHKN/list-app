@@ -1,7 +1,7 @@
 .App {
   text-align: center;
 }
-
+/* 
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -35,4 +35,50 @@
   to {
     transform: rotate(360deg);
   }
+} */
+
+.search-bar{
+  margin: 10px;
+  width: auto;
+  height: 30px;
+}
+
+.search-text{
+  width: 200px;
+}
+
+.search-btn{
+  cursor: pointer;
+}
+
+.container {
+  columns: 3 auto;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.card-holder {
+  margin: 10px;
+  width: auto;
+  height: auto;
+  border: 1px solid gray;
+  margin: 20px;
+}
+
+.card-holder img {
+  width: 100%;
+  height: 100%;
+}
+
+.card-holder > .card-body {
+  height: 100%;
+  overflow: auto;
+}
+
+.card-holder > .card-label {
+  height: 120%;
+  overflow: auto;
+  padding: 10 10 10 10;
 }
