@@ -26,7 +26,7 @@ function App() {
       case 'CLEAR_IMAGES':
         return { ...state, images: [] }
       default:
-        return { ...state, images: state.images }
+        return state;
     }
   }
 
@@ -34,12 +34,14 @@ function App() {
     switch (action.type) {
       case 'ADVANCE_PAGE':
         return { ...state, page: state.page + 1 }
+      case 'FIRST_PAGE':
+        return { ...state, page: 1 }
       default:
         return state;
     }
   }
 
-  const [pager, pagerDispatch] = useReducer(pageReducer, { page: 1 })
+  const [pager, pagerDispatch] = useReducer(pageReducer, { page: 1 });
   const [imageData, imageDispatch] = useReducer(imageReducer, { images: [], fetching: true });
   const [searchText, setSearchText] = useState("");
   const [searchTrigger, setSearchTrigger] = useState(false);
@@ -83,12 +85,13 @@ function App() {
   // }, [searchText]);
 
   useEffect(() => {
-    imageDispatch({ type: 'CLEAR_IMAGES' })
-  }, [searchText, searchTrigger]);
+    imageDispatch({ type: 'CLEAR_IMAGES' });
+    pagerDispatch({ type: 'FIRST_PAGE' });
+  }, [searchTrigger]);
 
   useEffect(() => {
     async function loadImage() {
-      imageDispatch({ type: 'FETCHING_IMAGES', fetching: true })
+      imageDispatch({ type: 'FETCHING_IMAGES', fetching: true });
 
       const url = UNSPLASH_URL + new URLSearchParams({
         client_id: MY_ACCESS_KEY,
@@ -99,6 +102,7 @@ function App() {
       await fetch(url)
         .then(async data => {
           const { total, total_pages, results } = await data.json();
+          await new Promise(resolve => setTimeout(resolve, (Math.random() + 1) * 1000));
           return results;
         })
         .then(async images => {
@@ -113,7 +117,7 @@ function App() {
           imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
           return e
         })
-        imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
+      imageDispatch({ type: 'FETCHING_IMAGES', fetching: false })
 
     }
     loadImage();
@@ -123,49 +127,28 @@ function App() {
   let bottomBoundaryRef = useRef(null);
   const scrollObserver = useCallback(
     node => {
-      new IntersectionObserver(entries => {
-        entries.forEach(en => {
-          if (en.intersectionRatio > 0) {
-            pagerDispatch({ type: 'ADVANCE_PAGE' });
-          }
-        });
-      }).observe(node);
+      if (bottomBoundaryRef.current) bottomBoundaryRef.current.disconnect();
+      bottomBoundaryRef.current = new IntersectionObserver(entries => {
+        // entries.forEach(en => {
+        //   if (en.isIntersecting) {
+        //     pagerDispatch({ type: 'ADVANCE_PAGE' });
+        //   }
+        // });
+
+        if (entries[0].isIntersecting) {
+          pagerDispatch({ type: 'ADVANCE_PAGE' });
+        };
+      });
+      if (node) bottomBoundaryRef.current.observe(node);
     },
     [pagerDispatch]
   );
-  useEffect(() => {
-    if (bottomBoundaryRef.current) {
-      scrollObserver(bottomBoundaryRef.current);
-    }
-  }, [scrollObserver, bottomBoundaryRef]);
 
-  // lazy loads images with intersection observer
-  // only swap out the image source if the new url exists
-  const imagesRef = useRef(null);
-  const imgObserver = useCallback(node => {
-    const intObs = new IntersectionObserver(entries => {
-      entries.forEach(en => {
-        if (en.intersectionRatio > 0) {
-          const currentImg = en.target;
-          const newImgSrc = currentImg.dataset.src;
-          // only swap out the image source if the new url exists
-          if (!newImgSrc) {
-            console.error('Image source is invalid');
-          } else {
-            currentImg.src = newImgSrc;
-          }
-          intObs.unobserve(node); // detach the observer when done
-        }
-      });
-    })
-    intObs.observe(node);
-  }, []);
-  useEffect(() => {
-    imagesRef.current = document.querySelectorAll('.card-img-top');
-    if (imagesRef.current) {
-      imagesRef.current.forEach(img => imgObserver(img));
-    }
-  }, [imgObserver, imagesRef, imageData.images]);
+  // useEffect(() => {
+  //   if (bottomBoundaryRef.current) {
+  //     scrollObserver(bottomBoundaryRef.current);
+  //   }
+  // }, [scrollObserver, bottomBoundaryRef]);
 
   return (
     <div className="App">
@@ -184,7 +167,7 @@ function App() {
         </div>
       )}
 
-      <div id='page-bottom-boundary' style={{ border: '1px solid gray' }} ref={bottomBoundaryRef} />
+      <div id='page-bottom-boundary' style={{ border: '1px solid white' }} ref={scrollObserver} />
 
     </div>
   );

@@ -8,7 +8,7 @@ export default function Search({ searchText, onKeywordChange, searchKeyword }) {
                 onChange={(e) => onKeywordChange(e.target.value)}
             />
             <button className="search-btn" onClick={() => searchKeyword(searchText)}>
-                Search
+                Search Images
             </button>
         </div>
     );
